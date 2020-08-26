@@ -4,6 +4,7 @@ import collections
 import copy
 import functools
 import logging
+import threading
 import time
 
 from kafka.vendor import six
@@ -93,6 +94,9 @@ class ConsumerCoordinator(BaseCoordinator):
         self.auto_commit_interval = self.config['auto_commit_interval_ms'] / 1000
         self.next_auto_commit_deadline = None
         self.completed_offset_commits = collections.deque()
+
+        # fixes consumer deadlock condition encountered here
+        self._lock = threading.Condition(client._lock)
 
         if self.config['default_offset_commit_callback'] is None:
             self.config['default_offset_commit_callback'] = self._default_offset_commit_callback
