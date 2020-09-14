@@ -95,7 +95,8 @@ class ConsumerCoordinator(BaseCoordinator):
         self.next_auto_commit_deadline = None
         self.completed_offset_commits = collections.deque()
 
-        # fixes consumer deadlock condition encountered here
+        # fixes consumer deadlock condition
+        log.info("overriding coordinator lock with client lock")
         self._lock = threading.Condition(client._lock)
 
         if self.config['default_offset_commit_callback'] is None:
