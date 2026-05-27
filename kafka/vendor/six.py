@@ -187,7 +187,16 @@ class _SixMetaPathImporter(object):
     def _get_module(self, fullname):
         return self.known_modules[self.name + "." + fullname]
 
+    def find_spec(self, fullname, path, target=None):
+        # Python 3.12+ removed find_module() from the import protocol (PEP 451).
+        # find_spec() is required for six.moves to be importable on Python 3.12+.
+        if fullname in self.known_modules:
+            import importlib.machinery
+            return importlib.machinery.ModuleSpec(fullname, self)
+        return None
+
     def find_module(self, fullname, path=None):
+        # Kept for Python 3.10 and below which still call find_module().
         if fullname in self.known_modules:
             return self
         return None
